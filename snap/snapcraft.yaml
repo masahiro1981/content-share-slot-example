@@ -1,0 +1,58 @@
+name: providerhiro # you probably want to 'snapcraft register <name>'
+base: core20 # the base snap is the execution environment for this snap
+version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Simple example for content sharing # 79 char long summary
+description: |
+  This is my-snap's description. You have a paragraph or two to tell the
+  most important story about your snap. Keep it under 100 words though,
+  we live in tweetspace and your description wants to look good in the snap
+  store.
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+
+
+
+apps:
+  hellowwordl:
+    command: hiro/helloworld.sh
+  tree:
+    command: hiro/usr/bin/tree
+
+# create slot which exposes $SNAP/bin and $SNAP/usr/bin to snap which has plug
+slots:
+  bin:                  # name of the slot
+    interface: content  # has to be content
+    content: binaries   # short discription of what we are sharing. 
+    read:               # specify access type
+    - $SNAP/hiro       # specify which path to be exposed to other snap with plug
+
+  usr:                 # name of the slot. 
+    interface: content # has to be content
+    read:              # specify access type
+    - $SNAP/hiro/usr   # specify which path to be exposed to other snap with plug
+
+parts:
+  my-part:
+    # See 'snapcraft plugins'
+    plugin: dump
+    source: .
+    organize:
+      helloworld.sh: hiro/helloworld.sh
+
+# if source-type is deb, source cannot be local. To use local deb package,
+# use nil plugin and override-build and unpack deb package.
+  tree:
+    plugin: nil
+    source: package
+    override-build: |
+      echo "unpacking deb package to $SNAPCRAFT_PART_INSTALL/hiro"
+      dpkg -x tree_1.8.0-1_amd64.deb $SNAPCRAFT_PART_INSTALL/hiro
+    build-packages:
+      - dpkg
+
+
+
+   
+
+
